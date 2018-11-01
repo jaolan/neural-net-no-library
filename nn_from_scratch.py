@@ -1,6 +1,3 @@
-import math
-import sys
-
 #if num_iterations > num_instances:
     #train for num instances()
     # get line_output after each line
@@ -14,6 +11,9 @@ import sys
     #set in_training = false
     #train for num instances()
     # get line_output after each line
+
+import math
+import sys
 
 def sigmoid( val ):
    return( 1 / (1+math.exp(-val)) )
@@ -29,7 +29,7 @@ def dot_product(dot, weight, attribute):
     for i in range(len(headers) - 1):
         dot[i] = weight[i] * attribute[i]
         total_dot += (weight[i] * attribute[i])
-        print total_dot
+        #print total_dot
     return total_dot
 
 def error_function(correct, total_dot):
@@ -39,15 +39,15 @@ def error_function(correct, total_dot):
 def update_weight(learn_rate, weight, calculated_error, derived_sigmoid):
     return weight + ( (learn_rate * weight) * calculated_error * derived_sigmoid )
 
-# do for each column
+#need to pass dot[i] NO???, do for each column
 def sigmoid_derivative(dot):
     return sigmoid(dot) * (1 - sigmoid(dot))
 
 def line_output(iteration):
-    print "For iteration %d: ", iteration,
-    for i in len((headers-1)):
-        print "w(%s): %s,  ", header[i], w[i],
-    print " output=" + total_dot
+    print "For iteration %s: " % iteration,
+    for i in range((len(headers)-1)):
+        print " w(%s): %s, " % ( headers[i], w[i]) ,
+    print " output=", total_dot
 
 #Use 0.5 as the classification threshold (i.e., classify the instance as 1 if the outputs a value that is at least 0.5; otherwise classify the instance as 0).
 #somewhere, if classify == 1, correct += 1
@@ -75,16 +75,16 @@ def initialize_weights(w):
 
 def print_accuracy(correct, num_iterations):
     accuracy = correct / num_iterations
-    if in_training == true:
-        print "Accuracy on training set (%s instances):  %s %", num_iterations, accuracy
+    if in_training is True:
+        print ("Accuracy on training set (%s instances):  %s %%" % (num_iterations, accuracy))
     else:
-        print "Accuracy on testing set (%s instances):  %s %", num_iterations, accuracy
+        print ("Accuracy on testing set (%s instances):  %s %%" % ( num_iterations, accuracy))
 
 #getting cmdline args
 train_file = sys.argv[1]
-test_file = sys.argv[2]
-learn_rate = map(int, sys.argv[3])
-num_iterations = map(int, sys.argv[4])
+test_file = open(sys.argv[2])
+learn_rate = int(sys.argv[3])
+num_iterations = int(sys.argv[4])
 
 num_instances = 0
 dot = [None]
@@ -124,9 +124,6 @@ if num_iterations > num_instances:
             total_dot = dot_product(dot, w, train_data)
             derived_sigmoid = sigmoid_derivative(total_dot)
             calculated_error = error_function(train_data[num_cols - 1], total_dot)
-            # remove
-            print total_dot
-            learn_rate = 0.5
             # update weights for i in len
             for i in range(len(train_data) - 1):
                 update_weight(learn_rate, w[i], calculated_error, derived_sigmoid)
@@ -134,7 +131,7 @@ if num_iterations > num_instances:
                 num_correct += 1
             line_output(iteration)
     iteration = 0
-    with open(train_file) as train_file:
+    with open(sys.argv[1]) as train_file:
         next(train_file)
         for line in train_file:
             iteration += 1
@@ -178,12 +175,12 @@ else:
 print_accuracy(num_correct, num_iterations)
 
 ########### test time ###############
-for line in open(test_file):
+for line in open(sys.argv[2]):
     headers = line.split()
     break
 in_training = False
 #need to skip first line in training
-with open(test_file) as train_file:
+with open(sys.argv[2]) as train_file:
     next(train_file)
     for line in train_file:
         iteration += 1
@@ -201,3 +198,4 @@ with open(test_file) as train_file:
 #training/testing over, check accuracy
 print_accuracy(num_correct, num_iterations)
 
+#problems: weights always 0, even if init to 1, calculations returning 0s, fix asap
