@@ -1,17 +1,3 @@
-#if num_iterations > num_instances:
-    #train for num instances()
-    # get line_output after each line
-    #train for num iterations - instances() , check when to break
-    # get line_output after each line
-#else:
-    #train for num iterations(), check when to break
-    # get line_output after each line
-
-##TEST
-    #set in_training = false
-    #train for num instances()
-    # get line_output after each line
-
 import math
 import sys
 
@@ -20,7 +6,7 @@ def sigmoid( val ):
 
 def initialize_weights(w):
     for i in range(len(train_data)-1):
-        w[i] = 0
+        w[i] = 1
     return w
 
 #passed 3 arrays, since dot[i] = w[i] * x[i] and total_dot += dot[i]
@@ -73,19 +59,25 @@ def initialize_weights(w):
       w[i] = 0
    return w
 
-def print_accuracy(correct, num_iterations):
+def print_accuracy(correct, num_iterations, training_string):
     accuracy = correct / num_iterations
     if in_training is True:
-        print ("Accuracy on training set (%s instances):  %s %%" % (num_iterations, accuracy))
+        training_string = set_train_accuracy(num_iterations, accuracy)
+        return training_string
     else:
         print ("Accuracy on testing set (%s instances):  %s %%" % ( num_iterations, accuracy))
+
+def set_train_accuracy(num_iterations, accuracy):
+   train_statement = ("Accuracy on training set (%s instances):  %s %%" % (num_iterations, accuracy))
+   return train_statement
 
 #getting cmdline args
 train_file = sys.argv[1]
 test_file = open(sys.argv[2])
-learn_rate = int(sys.argv[3])
+learn_rate = float(sys.argv[3])
 num_iterations = int(sys.argv[4])
 
+training_string = " "
 num_instances = 0
 dot = [None]
 w = [None]
@@ -172,7 +164,7 @@ else:
 
 
 # training/testing over, check accuracy
-print_accuracy(num_correct, num_iterations)
+training_string = print_accuracy(num_correct, num_iterations, training_string)
 
 ########### test time ###############
 for line in open(sys.argv[2]):
@@ -196,6 +188,7 @@ with open(sys.argv[2]) as train_file:
         line_output(iteration)
 
 #training/testing over, check accuracy
-print_accuracy(num_correct, num_iterations)
-
+print_accuracy(num_correct, num_iterations, training_string)
+print training_string
 #problems: weights always 0, even if init to 1, calculations returning 0s, fix asap
+
