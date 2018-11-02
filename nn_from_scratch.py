@@ -6,7 +6,7 @@ def sigmoid( val ):
 
 def initialize_weights(w):
     for i in range(len(train_data)-1):
-        w[i] = 1
+        w[i] = 0
     return w
 
 #passed 3 arrays, since dot[i] = w[i] * x[i] and total_dot += dot[i]
@@ -15,15 +15,14 @@ def dot_product(dot, weight, attribute):
     for i in range(len(headers) - 1):
         dot[i] = weight[i] * attribute[i]
         total_dot += (weight[i] * attribute[i])
-        #print total_dot
     return total_dot
 
 def error_function(correct, total_dot):
     return correct - sigmoid(total_dot)
 
 #return for every weight in row, passed weight array, check calcd err what does it do
-def update_weight(learn_rate, weight, calculated_error, derived_sigmoid):
-    return weight + ( (learn_rate * weight) * calculated_error * derived_sigmoid )
+def update_weight(learn_rate, weight, attribute, calculated_error, derived_sigmoid):
+    return (weight + ( learn_rate * attribute * calculated_error * derived_sigmoid ))
 
 #need to pass dot[i] NO???, do for each column
 def sigmoid_derivative(dot):
@@ -38,7 +37,7 @@ def line_output(iteration):
 #Use 0.5 as the classification threshold (i.e., classify the instance as 1 if the outputs a value that is at least 0.5; otherwise classify the instance as 0).
 #somewhere, if classify == 1, correct += 1
 def classify(total_dot):
-    if total_dot >= 0.5:
+    if total_dot <=  0.5:
         return 1
     else:
         return 0
@@ -60,15 +59,17 @@ def initialize_weights(w):
    return w
 
 def print_accuracy(correct, num_iterations, training_string):
-    accuracy = correct / num_iterations
+    print correct, num_iterations, training_string
+    accuracy = float( float(correct) / float(num_iterations) )
     if in_training is True:
-        training_string = set_train_accuracy(num_iterations, accuracy)
+        training_string = set_train_accuracy(num_iterations, correct)
         return training_string
     else:
-        print ("Accuracy on testing set (%s instances):  %s %%" % ( num_iterations, accuracy))
+        print ("Accuracy on testing set (%s instances):  %s %%" % (num_iterations, "{:.1%}".format(accuracy)))
 
-def set_train_accuracy(num_iterations, accuracy):
-   train_statement = ("Accuracy on training set (%s instances):  %s %%" % (num_iterations, accuracy))
+def set_train_accuracy(num_iterations, correct):
+   accuracy = float( float(correct) / float(num_iterations) )
+   train_statement = ("Accuracy on training set (%s instances):  %s %%" % (num_iterations, "{:.1%}".format(accuracy)))
    return train_statement
 
 #getting cmdline args
@@ -118,8 +119,8 @@ if num_iterations > num_instances:
             calculated_error = error_function(train_data[num_cols - 1], total_dot)
             # update weights for i in len
             for i in range(len(train_data) - 1):
-                update_weight(learn_rate, w[i], calculated_error, derived_sigmoid)
-            if classify(total_dot) == train_data[num_cols - 1]:
+                w[i] = update_weight(learn_rate, w[i], train_data[i], calculated_error, derived_sigmoid)
+            if classify(total_dot) == 1:
                 num_correct += 1
             line_output(iteration)
     iteration = 0
@@ -134,15 +135,15 @@ if num_iterations > num_instances:
             # update weights for i in len
             for i in range(len(train_data) - 1):
                 # print w[i]
-                update_weight(learn_rate, w[i], calculated_error, derived_sigmoid)
-            if classify(total_dot) == train_data[num_cols - 1]:
+                w[i] = update_weight(learn_rate, w[i], train_data[i], calculated_error, derived_sigmoid)
+            if classify(total_dot) == 1:
                 num_correct += 1
             line_output(iteration)
             #exit loop when total iterations done
             if iteration > leftover_lines:
                 break
 else:
-    # train for num instances(), then train for leftover
+    
     with open(train_file) as train_file:
         next(train_file)
         for line in train_file:
@@ -153,8 +154,8 @@ else:
             calculated_error = error_function(train_data[num_cols - 1], total_dot)
             # update weights for i in len
             for i in range(len(train_data) - 1):
-                update_weight(learn_rate, w[i], calculated_error, derived_sigmoid)
-            if classify(total_dot) == train_data[num_cols - 1]:
+                w[i] = update_weight(learn_rate, w[i], train_data[i], calculated_error, derived_sigmoid)
+            if classify(total_dot) == 1:
                 num_correct += 1
             line_output(iteration)
 
@@ -164,6 +165,7 @@ else:
 
 
 # training/testing over, check accuracy
+num_correct = 0
 training_string = print_accuracy(num_correct, num_iterations, training_string)
 
 ########### test time ###############
@@ -182,13 +184,12 @@ with open(sys.argv[2]) as train_file:
         calculated_error = error_function(train_data[num_cols-1], total_dot)
         #update weights for i in len
         for i in range(len(train_data)-1):
-            update_weight(learn_rate, w[i], calculated_error, derived_sigmoid)
-        if classify(total_dot) == train_data[num_cols-1]:
+            w[i] = update_weight(learn_rate, w[i], train_data[i], calculated_error, derived_sigmoid)
+        if classify(total_dot) == 1:
             num_correct += 1
         line_output(iteration)
-
+        
 #training/testing over, check accuracy
 print_accuracy(num_correct, num_iterations, training_string)
 print training_string
-#problems: weights always 0, even if init to 1, calculations returning 0s, fix asap
 
